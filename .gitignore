@@ -1,0 +1,7 @@
+*.bak
+*.tmp
+
+## Exclude files likely to contain sensitive information like passwords, private
+## keys, or other secrets.
+.env
+.envrc
