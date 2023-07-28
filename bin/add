@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -e
+set -o pipefail
+
+## Documentation for how to use this action/command
+print_usage() {
+    echo "$(tput bold)USAGE$(tput sgr 0)"
+    echo "  helm starter add <repository> [<repository> ...] [options]"
+    echo ""
+    echo "$(tput bold)ARGUMENTS$(tput sgr 0)"
+    echo "  <repository>      The repository containing the starter to add. Must"
+    echo "                    be formatted as a 'git' or 'https' URL."
+    echo ""
+    echo "$(tput bold)FLAGS$(tput sgr 0)"
+    echo "  $(tput setaf 4)--help, -h        $(tput setaf 3)Flag$(tput sgr 0)"
+    echo "      Displays this help message."
+    echo ""
+    echo "$(tput bold)EXAMPLES$(tput sgr 0)"
+    echo "  helm starter add git@github.com:example-org/example-starter"
+    echo "  helm starter add https://github.com/example-org/example-starter"
+    echo ""
+}
+
+declare REPOSITORIES=()
+declare -r STARTERS_DIR="${HELM_DATA_HOME}/starters"
+
+## Process the command line arguments, flags, and/or options provided
+while [[ $# -gt 0 ]]; do
+    case "${1}" in
+        --help | -h )
+            print_usage && exit 0;;
+
+        git@*|https://* )
+            REPOSITORIES+=("${1}");;
+
+        * )
+            echo "$(tput setaf 3)WARNING: Unknown or unsupported input: ${1}$(tput sgr 0)";;
+    esac
+    shift
+done
+
+## Bail out if any of the following error conditions were encountered
+if [ "${#REPOSITORIES[@]}" -eq 0 ]; then
+    echo "$(tput setaf 1)ERROR: No starters to add were specified$(tput sgr 0)"
+    print_usage && exit 1
+fi
+
+## Otherwise, proceed to add each listed starter to the 'starters' directory
+for r in "${REPOSITORIES[@]}"; do
+    git -C "${STARTERS_DIR}" clone "${r}" --quiet
+done

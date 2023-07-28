@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+set -o pipefail
+
+print_usage() {
+    echo "$(tput bold)USAGE$(tput sgr 0)"
+    echo "  helm starter <action> [options]"
+    echo ""
+    echo "$(tput bold)COMMANDS$(tput sgr 0)"
+    echo "  add          Add one or more starter scaffolds to the local collection"
+    echo ""
+    echo "$(tput bold)OPTIONS$(tput sgr 0)"
+    echo "  $(tput setaf 4)--help, -h        $(tput setaf 3)Flag$(tput sgr 0)"
+    echo "      Displays this help message."
+    echo ""
+}
+
+## Create the 'starters' directory if it doesn't exist
+mkdir -p "${HELM_DATA_HOME}/starters"
+
+## Execute the specified command, passing any input to it
+if [ -f "bin/${1}" ]; then
+    "bin/${1}" "${@:2}"
+elif [[ "${1}" =~ ^-?-h(elp)?$ ]]; then
+    print_usage && exit 0
+else
+    echo "$(tput setaf 1)ERROR: Invalid input: ${1}$(tput sgr 0)"
+    print_usage && exit 1
+fi

@@ -1,0 +1,14 @@
+name: starter
+version: 0.1.0
+
+description: A Helm plugin for managing Helm starter scaffolds
+ignoreFlags: false
+
+platformCommand:
+  - os: darwin
+    command: "${HELM_PLUGIN_DIR}/starter"
+  - os: linux
+    command: "${HELM_PLUGIN_DIR}/starter"
+  ## TODO: Create plugin script for Windows platform
+  # - os: windows
+  #   command: "${HELM_PLUGIN_DIR}/starter.ps1"
