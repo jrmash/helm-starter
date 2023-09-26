@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -e
+set -o pipefail
+
+print_usage() {
+    echo "USAGE"
+    echo "  helm starter remove <starter> [<starter> ...] [options]"
+    echo ""
+    echo "ARGUMENTS"
+    echo "  <starter>         The name of the starter, as known by 'helm starter"
+    echo "                    list', to remove."
+    echo ""
+    echo "FLAGS"
+    echo "  $(tput setaf 4)--help, -h        $(tput setaf 3)Flag$(tput sgr 0)"
+    echo "      Displays this help message."
+    echo ""
+}
+
+declare STARTERS=()
+declare -r STARTER_DIR="${HELM_DATA_HOME}/starters"
+
+## Process the command line arguments, flags, and/or options provided
+while [[ $# -gt 0 ]]; do
+    case "${1}" in
+        --help | -h )
+            print_usage && exit 0;;
+
+        [^-][a-zA-Z0-9-_]* )
+            STARTERS+=("${1}");;
+
+        * )
+            echo "$(tput setaf 3)WARNING: Unknown or unsupported input: ${1}$(tput sgr 0)";;
+    esac
+    shift
+done
+
+## Bail out if any of the following error conditions were encountered
+if [ "${#STARTERS[@]}" -eq 0 ]; then
+    echo "$(tput setaf 1)ERROR: No starters to remove were specified$(tput sgr 0)"
+    print_usage && exit 1
+fi
+
+## Otherwise, proceed to remove each listed starter (if installed)
+for s in "${STARTERS[@]}"; do
+    if [ ! -d "${STARTER_DIR}/${s}" ]; then
+        echo "$(tput setaf 3)WARNING: Starter '${s}' not installed${1}$(tput sgr 0)"
+        continue
+    fi
+
+    rm -rf "${STARTER_DIR}/${s}"
+done
