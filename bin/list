@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -e
+set -o pipefail
+
+print_usage() {
+    echo "USAGE"
+    echo "  helm starter list [options]"
+    echo ""
+    echo "FLAGS"
+    echo "  $(tput setaf 4)--help, -h        $(tput setaf 3)Flag$(tput sgr 0)"
+    echo "      Displays this help message."
+    echo ""
+}
+
+declare -r STARTER_DIR="${HELM_DATA_HOME}/starters"
+
+## Process any comand line arguments, flags, and/or options provided
+while [[ $# -gt 0 ]]; do
+    case "${1}" in
+        --help | -h )
+            print_usage && exit 0;;
+    esac
+    shift
+done
+
+## Proceed to list each installed starter scaffold via simple directory listing,
+## for now. This avoids the pitfalls of parsing 'ls' (future update), and should
+## be pretty portable.
+while IFS= read -r -d ''; do
+	echo "${REPLY##*/}"
+done < <( find "${STARTER_DIR}" -type d -mindepth 1 -maxdepth 1 -exec printf '%s\0' {} + )

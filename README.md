@@ -13,6 +13,7 @@ USAGE
 
 COMMANDS
   add          Add one or more starter scaffolds to the local collection
+  list         List all available starter scaffolds in the local collection
 
 OPTIONS
   --help, -h        Flag

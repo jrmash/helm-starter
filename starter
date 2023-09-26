@@ -8,6 +8,7 @@ print_usage() {
     echo ""
     echo "$(tput bold)COMMANDS$(tput sgr 0)"
     echo "  add          Add one or more starter scaffolds to the local collection"
+    echo "  list         List all available starter scaffolds in the local collection"
     echo ""
     echo "$(tput bold)OPTIONS$(tput sgr 0)"
     echo "  $(tput setaf 4)--help, -h        $(tput setaf 3)Flag$(tput sgr 0)"
