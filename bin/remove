@@ -11,17 +11,21 @@ print_usage() {
     echo "                    list', to remove."
     echo ""
     echo "FLAGS"
+    echo "  $(tput setaf 4)--force, -f       $(tput setaf 3)Flag$(tput sgr 0)"
+    echo "      Removes the specified starter(s) without confirmation"
     echo "  $(tput setaf 4)--help, -h        $(tput setaf 3)Flag$(tput sgr 0)"
     echo "      Displays this help message."
     echo ""
 }
 
+declare FORCE=false
 declare STARTERS=()
-declare -r STARTER_DIR="${HELM_DATA_HOME}/starters"
 
 ## Process the command line arguments, flags, and/or options provided
 while [[ $# -gt 0 ]]; do
     case "${1}" in
+        --force | -f )
+            FORCE=true;;
         --help | -h )
             print_usage && exit 0;;
 
@@ -41,11 +45,20 @@ if [ "${#STARTERS[@]}" -eq 0 ]; then
 fi
 
 ## Otherwise, proceed to remove each listed starter (if installed)
-for s in "${STARTERS[@]}"; do
-    if [ ! -d "${STARTER_DIR}/${s}" ]; then
-        echo "$(tput setaf 3)WARNING: Starter '${s}' not installed${1}$(tput sgr 0)"
+for starter in "${STARTERS[@]}"; do
+    starterDir="${HELM_DATA_HOME}/starters/${starter}"
+
+    if [ ! -d "${starterDir}" ]; then
+        echo "$(tput setaf 3)WARNING: Starter '${starter}' not installed${1}$(tput sgr 0)"
         continue
     fi
 
-    rm -rf "${STARTER_DIR}/${s}"
+    if [[ ! "${FORCE}" == true ]]; then
+        read -p "Remove starter in '${starterDir}'? [y/N] " -r -t 15 FORCE_REPLY
+
+        if [[ ! "${FORCE_REPLY}" =~ ^[Yy]$ ]]; then
+            continue
+        fi
+    fi
+    rm -rf "${starterDir}"
 done

@@ -24,7 +24,6 @@ print_usage() {
 
 declare BRANCH=""
 declare STARTERS=()
-declare -r STARTER_DIR="${HELM_DATA_HOME}/starters"
 
 ## Process the command line arguments, flags, and/or options provided
 while [[ $# -gt 0 ]]; do
@@ -52,15 +51,17 @@ fi
 
 ## Otherwise, proceed to update each listed starter (if installed) and switch to
 ## the specified branch (or the default branch, if '--branch' is omitted). 
-for s in "${STARTERS[@]}"; do
-    if [ ! -d "${STARTER_DIR}/${s}" ]; then
-        echo "$(tput setaf 3)WARNING: Starter '${s}' not installed${1}$(tput sgr 0)"
+for starter in "${STARTERS[@]}"; do
+    starterDir="${HELM_DATA_HOME}/starters/${starter}"
+
+    if [ ! -d "${starterDir}" ]; then
+        echo "$(tput setaf 3)WARNING: Starter '${starter}' not installed${1}$(tput sgr 0)"
         continue
     elif [[ -z "${BRANCH}" ]]; then
-        BRANCH="$(git -C "${STARTER_DIR}/${s}" rev-parse --abbrev-ref origin/HEAD)"
+        BRANCH="$(git -C "${starterDir}" rev-parse --abbrev-ref origin/HEAD)"
         BRANCH="${BRANCH##*/}"
     fi
 
-    git -C "${STARTER_DIR}/${s}" pull --quiet
-    git -C "${STARTER_DIR}/${s}" checkout --quiet "${BRANCH}"
+    git -C "${starterDir}" pull --quiet
+    git -C "${starterDir}" checkout --quiet "${BRANCH}"
 done
