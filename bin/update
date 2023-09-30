@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -e
+set -o pipefail
+
+## Documentation for how to use this action/command
+print_usage() {
+    echo "USAGE"
+    echo "  helm starter update <starter> [<starter> ...] [options]"
+    echo ""
+    echo "ARGUMENTS"
+    echo "  <starter>         The name of the starter, as known by 'helm starter"
+    echo "                    list', to update."
+    echo ""
+    echo "FLAGS"
+    echo "  $(tput setaf 4)--help, -h        $(tput setaf 3)Flag$(tput sgr 0)"
+    echo "      Displays this help message."
+    echo ""
+    echo "OPTIONS"
+    echo "  $(tput setaf 4)--branch, -b      $(tput setaf 3)String, Values: Any string$(tput sgr 0)"
+    echo "    The branch to pull from the starter's repository. If not specified,"
+    echo "    the repository's default branch will be used."
+    echo ""
+}
+
+declare BRANCH=""
+declare STARTERS=()
+declare -r STARTER_DIR="${HELM_DATA_HOME}/starters"
+
+## Process the command line arguments, flags, and/or options provided
+while [[ $# -gt 0 ]]; do
+    case "${1}" in
+        --help | -h )
+            print_usage && exit 0;;
+
+        [^-][a-zA-Z0-9-_]* )
+            STARTERS+=("${1}");;
+
+        --branch | -b )
+            shift && BRANCH="${1}";;
+
+        * )
+            echo "$(tput setaf 3)WARNING: Unknown or unsupported input: ${1}$(tput sgr 0)";;
+    esac
+    shift
+done
+
+## Bail out if any of the following error conditions were encountered
+if [ "${#STARTERS[@]}" -eq 0 ]; then
+    echo "$(tput setaf 1)ERROR: No starters to update were specified$(tput sgr 0)"
+    print_usage && exit 1
+fi
+
+## Otherwise, proceed to update each listed starter (if installed) and switch to
+## the specified branch (or the default branch, if '--branch' is omitted). 
+for s in "${STARTERS[@]}"; do
+    if [ ! -d "${STARTER_DIR}/${s}" ]; then
+        echo "$(tput setaf 3)WARNING: Starter '${s}' not installed${1}$(tput sgr 0)"
+        continue
+    elif [[ -z "${BRANCH}" ]]; then
+        BRANCH="$(git -C "${STARTER_DIR}/${s}" rev-parse --abbrev-ref origin/HEAD)"
+        BRANCH="${BRANCH##*/}"
+    fi
+
+    git -C "${STARTER_DIR}/${s}" pull --quiet
+    git -C "${STARTER_DIR}/${s}" checkout --quiet "${BRANCH}"
+done
