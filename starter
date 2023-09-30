@@ -22,8 +22,8 @@ print_usage() {
 mkdir -p "${HELM_DATA_HOME}/starters"
 
 ## Execute the specified command, passing any input to it
-if [ -f "bin/${1}" ]; then
-    "bin/${1}" "${@:2}"
+if [ -f "${HELM_PLUGIN_DIR}/bin/${1}" ]; then
+    "${HELM_PLUGIN_DIR}/bin/${1}" "${@:2}"
 elif [[ "${1}" =~ ^-?-h(elp)?$ ]]; then
     print_usage && exit 0
 else
